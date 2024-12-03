@@ -1,22 +1,46 @@
-body {
-    background-image: url(pexels-felixmittermeier-956981.jpg);
+* {
     box-sizing: border-box;
+}
+
+body {
+    
+    background:linear-gradient(90deg, #0C164D 0%, #190B22 100%);
+    font-family:italic;
     height: 100vh;
-    width: 100vw;
+    width: 100%;
     display: flex;
     flex-direction: column;
     margin: 0;
     padding: 0;
- 
+    position: relative;
     
-  
+}
 
+.stars {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: blink 1.5s infinite alternate;
+    z-index: -1;
+    transition: top 2s ease-in-out, left 2s ease-in-out;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 
 
 
-section {
+
+
+main {
     display: flex;
     flex-direction: column;
     height: 121px;
@@ -25,18 +49,67 @@ section {
     gap: 16px;
     
 }
-section h1 {
+main h1 {
+    display: block;
     color: white;
     margin-right: 30px;
     font-size: 4rem;
+    margin-bottom: 0;
 
 }
 
-section p {
+main p {
     color: #FFD029;
     text-align: end;
     margin-right: 30px;
+    padding: 0;
+    margin-bottom: 30px;
     font-size: 2rem;
+}
+
+.info-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 50%;
+    left: 40%;
+    transform: translate(-20%, -50%);
+    height: auto;
+    width: 682px;
+    max-width: 700px;
+    gap: 32px;
+    text-align: center;
+    color: white;
+    gap: 10px;
+    
+
+}
+
+#planet-title {
+    color: #fff;
+    text-align: start;
+}
+
+
+
+#planet-title-latin {
+    color: #FFD029;
+    text-align: start;
+}
+
+.info-modal {
+    height: 100%;
+    width: 100%;
+    
+}
+
+.modal-content {
+    background-color: white;
+    z-index: 1010;
+    box-sizing: border-box;
+    text-align: start;
+    color: black;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .planet-box {
@@ -48,25 +121,56 @@ section p {
     justify-content: space-evenly;
     align-items: center;
     padding-left: 0;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    
     
 }
 
-#sun {
+.planet-box section:hover {
+    transform: scale(1.03); 
+    
+}
+
+.planet-title {
+    color: white;
+    font-size: 8rem;
+}
+
+#temp,
+#km {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#moons,
+#planet-desc {
+    text-align: left;
+}
+
+
+#solis {
     background-color: yellow;
     position: absolute;
     height: 740px;
     width: 740px;
+    margin-bottom: 0px;
     border-radius: 50%;
-    left: -682px;
-    
-    
+    left: -700px;
+    z-index: 10000;
+    box-shadow: 0 0 20px 15px rgba(255, 255, 0, 0.7);
 }
 
-#mercury {
+#solis-blue {
+    color: rgb(65, 142, 212)l;
+}
+
+#mercurialis {
     height: 14px;
     width: 14px;
     background-color: #888888;
     border-radius: 50%;
+    box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.6);
     
 }
 
@@ -75,14 +179,16 @@ section p {
     width: 26px;
     background-color: #E7CDCD;
     border-radius: 50%;
+    box-shadow: 0 0 12px 8px rgba(255, 255, 255, 0.4);
     
 }
 
-#earth{
+#tellus{
     height: 28px;
     width: 28px;
     background-color: #428ED4;
     border-radius: 50%;
+    box-shadow: 0 0 15px 10px rgba(0, 153, 255, 0.5);
     
 }
 
@@ -91,20 +197,57 @@ section p {
     width: 14px;
     background-color: #EF5F5F;
     border-radius: 50%;
+    box-shadow: 0 0 10px 5px rgba(255, 0, 0, 0.6);
 }
 
-#jupiter {
+#lovis {
     height: 188px;
     width: 188px;
     background-color: #E29468;
-    border-radius: 50%;   
+    border-radius: 50%;
+    box-shadow: 0 0 25px 20px rgba(255, 165, 0, 0.5); 
 }
 
-#saturn {
+.saturn-container {
+    display: flex;
+    justify-items: center;
+}
+
+#saturnus {
     height: 144px;
     width: 144px;
     background-color: #C7AA72;
     border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 20px 15px rgba(255, 255, 255, 0.4);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#saturnus-ring {
+    width: 218px;
+    height: 5.5px;
+    background-color: #FFFFFF66;
+    position: absolute;
+    transform: translate(70%);
+    rotate: -30deg;
+    transform-origin: center;
+    top: 74%;
+    left: 46.6%;
+    box-shadow: 0 0 20px 15px rgba(255, 255, 255, 0.2);
+    border-radius: 90%;
+    
+    
+    
+    
+    
 }
 
 #uranus {
@@ -112,14 +255,16 @@ section p {
     width: 66px;
     background-color: #C9D4F1;
     border-radius: 50%;
+    box-shadow: 0 0 18px 12px rgba(173, 216, 230, 0.5);
     
 }
 
-#neptune {
+#neptunus {
     height: 66px;
     width: 66px;
     background-color: #7A91A7;
     border-radius: 50%;
+    box-shadow: 0 0 18px 12px rgba(0, 0, 255, 0.5);
     
 }
 
