@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     createStars()
     moveStars()
     
-    
 });
 
 
@@ -101,7 +100,7 @@ function createStars() {
                     star.style.top = randomTop
                     star.style.left = randomLeft
                 })
-            }, 20000)
+            }, 5000)
         }
 
         const hideMain = () => {
@@ -141,13 +140,15 @@ function createStars() {
         sun.addEventListener('click', () => {
             let planetInfo = planetData.find(data => data.latinName.toLowerCase() === 'solis');
             colorSunBlue()
-
+            hideMain()
             planetModal.addEventListener('click', (e) => {
                 if (e.target === planetModal) {
                     planetModal.style.display = 'none'
                     planetBox.style.display= 'flex'
                     showMain()
                     showPlanets()
+                    
+                    showMain()
 
                 }
 
