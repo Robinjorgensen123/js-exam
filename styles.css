@@ -145,6 +145,17 @@ main p {
     border-bottom: 2px solid #434160;
 }
 
+#close-btn {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    height: 50px;
+    width: 50px;
+    background:linear-gradient(90deg, #418ed8 20%, rgb(255, 55, 0) 80%);
+    border: 1px solid black;
+    color: white;
+    border-radius: 5px;
+}
 
 
 
@@ -235,18 +246,13 @@ main p {
     height: 5.5px;
     background-color: #FFFFFF66;
     position: absolute;
-    transform: translate(70%);
-    rotate: -30deg;
+    transform: translate(-50%, -50%) rotate(-30deg);
     transform-origin: center;
-    top: 74%;
-    left: 46.6%;
+    top: 60%;
+    left: 65%;
     box-shadow: 0 0 20px 15px rgba(255, 255, 255, 0.2);
     border-radius: 90%;
-    
-    
-    
-    
-    
+        
 }
 
 #uranus {

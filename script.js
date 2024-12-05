@@ -22,11 +22,13 @@ let retryCount = 0
 const planets = document.querySelectorAll(".planet-box section");
 const planetModal = document.querySelector(".info-modal");
 const planetBox = document.querySelector(".planet-box");
+console.log("planetModal:", planetModal);
+console.log("planetBox:", planetBox);
 
 const fetchplanetData = async (apiKey) => {
   try {
     if (isDataLoaded) {
-      console.log('data is loaded, no more attempt is needed')
+      console.log('Data is already loaded, no need to fetch again');
       return
     }
 
@@ -39,10 +41,16 @@ const fetchplanetData = async (apiKey) => {
       {
         method: "GET",
         headers: { "x-zocom": apiKey },
-      }
-    );
-    const data = await response.json();
+        
+      });
+      console.log("API response status:", response.status);  // Logga status från API-svaret
 
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    
     console.log(data);
 
     if (data && Array.isArray(data.bodies)) {
@@ -56,11 +64,12 @@ const fetchplanetData = async (apiKey) => {
     console.log("failed to get data:", error);
     hasFetchFailed = true
     retryCount += 1
+
   } if (retryCount < maxTries) {
     console.log(`Försök att hämta data igen... (Försök ${retryCount}/${maxTries})`);
-      fetchplanetData(apiKey); // Gör ett nytt försök
+      setTimeout(() => fetchplanetData(apiKey), 1000); // Gör ett nytt försök
     } else {
-      console.log("Max antal försök har uppnåtts. Vänligen försök igen senare.");
+      console.log("Max attempts reached. Please try again later.");
   }
 
 };
@@ -100,7 +109,7 @@ const showPlanets = () => {
 
 const updatePlanetModal = (planetInfo) => {
   if (!planetInfo) return;
-
+  console.log("Updating modal with planet info:", planetInfo);
   document.getElementById("planet-title").textContent = planetInfo.name;
   document.getElementById("planet-title-latin").textContent = planetInfo.latinName;
   document.getElementById("planet-desc").textContent = planetInfo.desc;
@@ -117,6 +126,7 @@ const updatePlanetModal = (planetInfo) => {
   }
   if (moonsText) {
     document.getElementById("moons").innerHTML = moonsText;
+    
   }
 
   planetModal.style.display = "block";
@@ -135,22 +145,25 @@ const addPlanetEventListeners = () => {
       hidePlanets();
       colorSunBlue();
 
-      planetModal.addEventListener("click", e => {
-        if (e.target === planetBox, planetModal) {
-          planetModal.style.display = "none";
-          planetBox.style.display = "flex";
-          showMain();
-          showPlanets();
-        }
-      });
-
       if (planetInfo) {
-        updatePlanetModal(planetInfo);
+        console.log("Planet info found:", planetInfo);
+        updatePlanetModal(planetInfo); // Visa planetens detaljer
       } else {
-        alert("Den informationen du söker finns inte tillgänglig!");
+        alert('Den informationen du söker finns inte tillgänglig!');
       }
     });
   });
+
+  const closeButton = planetModal.querySelector("#close-btn");
+  if (closeButton) {
+    closeButton.addEventListener("click", () => {
+      console.log("Stängknapp klickad.");
+      planetModal.style.display = "none";
+      planetBox.style.display = "flex";
+      showMain();
+      showPlanets();
+    });
+  }
 };
 
 // Event listener för solen
@@ -165,4 +178,4 @@ if (sun) {
     hideMain();
     updatePlanetModal(planetInfo);
   });
-}
+};
