@@ -1,39 +1,39 @@
-document.addEventListener("DOMContentLoaded", () => {
-  fetchApiKey();
-  createStars();
-  moveStars();
+import { fetchApiKey } from './api.js';
+import { createStars, moveStars } from './star-animation.js';
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const apiKey = await fetchApiKey();
+    console.log("API-nyckel hämtad:", apiKey);
+
+    createStars(); // modul star-animatjon.js
+    moveStars(); // modul star-animation.js
+    await fetchplanetData(apiKey);
+  } catch (error) {
+    console.error("Fel vid hämtning av API-nyckel:", error);
+  }
 });
 
-let apiKey = "";
 let planetData = []; // Array som sparar datan ifrån api med info om planeterna
-
+let isDataLoaded = false
+let hasFetchFailed = false
+const maxTries = 3
+let retryCount = 0
 const planets = document.querySelectorAll(".planet-box section");
 const planetModal = document.querySelector(".info-modal");
-const modalContent = document.querySelector(".modal-content");
 const planetBox = document.querySelector(".planet-box");
-const titleText = document.querySelector("main");
-//const sun = document.getElementById('solis')
 
-const fetchApiKey = async () => {
+const fetchplanetData = async (apiKey) => {
   try {
-    const response = await fetch(
-      "https://n5n3eiyjb0.execute-api.eu-north-1.amazonaws.com/keys",
-      {
-        method: "POST",
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-    apiKey = data.key;
-    await fetchplanetData();
-    console.log(apiKey);
-  } catch (error) {
-    console.error("error fetching api key:", error);
-  }
-};
+    if (isDataLoaded) {
+      console.log('data is loaded, no more attempt is needed')
+      return
+    }
 
-const fetchplanetData = async () => {
-  try {
+    if (hasFetchFailed && retryCount >= maxTries) {
+      console.log('maximum number of tries, try again later!')
+      return
+    }
     const response = await fetch(
       "https://n5n3eiyjb0.execute-api.eu-north-1.amazonaws.com/bodies",
       {
@@ -44,228 +44,125 @@ const fetchplanetData = async () => {
     const data = await response.json();
 
     console.log(data);
+
     if (data && Array.isArray(data.bodies)) {
       planetData = data.bodies;
+      isDataLoaded = true
+      hasFetchFailed = false
+      retryCount = 0
       addPlanetEventListeners();
     }
   } catch (error) {
     console.log("failed to get data:", error);
+    hasFetchFailed = true
+    retryCount += 1
+  } if (retryCount < maxTries) {
+    console.log(`Försök att hämta data igen... (Försök ${retryCount}/${maxTries})`);
+      fetchplanetData(apiKey); // Gör ett nytt försök
+    } else {
+      console.log("Max antal försök har uppnåtts. Vänligen försök igen senare.");
   }
+
 };
 
-function createStars() {
-  const numberOfStars = 100; // Antal stjärnor
-  const container = document.body;
 
-  const existingStars = document.querySelectorAll(".stars");
-  existingStars.forEach((star) => star.remove());
-
-  for (let i = 0; i < numberOfStars; i++) {
-    let star = document.createElement("section");
-    star.classList.add("stars");
-
-    // Slumpmässig storlek på stjärnorna
-    const starSize = Math.random() * 2 + 1 + "px"; // Slumpa storlek mellan 1px och 3px
-    star.style.width = starSize;
-    star.style.height = starSize;
-
-    // Slumpa positionen på stjärnorna över hela skärmen
-    star.style.top = Math.random() * 95 + "vh"; // Slumpmässig position från 0% till 100% av viewportens höjd
-    star.style.left = Math.random() * 95 + "vw"; // Slumpmässig position från 0% till 100% av viewportens bredd
-
-    // Slumpmässig animeringstid för blinkande effekt
-    star.style.animationDuration = Math.random() * 2 + 1 + "s"; // Slumpmässig animeringstid mellan 1 och 3 sekunder
-
-    container.appendChild(star);
-  }
-}
-
-function moveStars() {
-  const stars = document.querySelectorAll(".stars");
-  setInterval(() => {
-    stars.forEach((star) => {
-      const randomTop = Math.random() * 95 + "vh";
-      const randomLeft = Math.random() * 95 + "vw";
-      star.style.top = randomTop;
-      star.style.left = randomLeft;
-    });
-  }, 5000);
-}
 
 const hideMain = () => {
-  const mainElementH1 = document.querySelector("main h1");
-  const mainElementP = document.querySelector("main p");
-  mainElementH1.style.display = "none";
-  mainElementP.style.display = "none";
+  document.querySelector("main h1").style.display = "none";
+  document.querySelector("main p").style.display = "none";
 };
 
 const showMain = () => {
-  const mainElementH1 = document.querySelector("main h1");
-  const mainElementP = document.querySelector("main p");
-  mainElementH1.style.display = "flex";
-  mainElementP.style.display = "flex";
+  document.querySelector("main h1").style.display = "flex";
+  document.querySelector("main p").style.display = "flex";
 };
 
 const hidePlanets = () => {
-  planets.forEach((planet) => {
-    if (planet.id.toLowerCase() !== "solis") {
-      planet.style.display = "none";
-    }
+  planets.forEach(planet => {
+    if (planet.id.toLowerCase() !== "solis") planet.style.display = "none";
   });
 };
 
 const colorSunBlue = () => {
   const sun = document.getElementById("solis");
-  if (sun) {
-    sun.style.backgroundColor = "#418ed4";
-  }
+  if (sun) sun.style.backgroundColor = "#418ed4";
 };
-
-const sun = document.getElementById("solis");
-if (sun) {
-  console.log("Solen hittades i DOM");
-  sun.addEventListener("click", () => {
-    let planetInfo = planetData.find(
-      (data) => data.latinName.toLowerCase() === "solis"
-    );
-    colorSunBlue();
-    hideMain();
-    planetModal.addEventListener("click", (e) => {
-      if (e.target === planetModal) {
-        planetModal.style.display = "none";
-        planetBox.style.display = "flex";
-        showMain();
-        showPlanets();
-
-        showMain();
-      }
-    });
-
-    if (planetInfo) {
-      // Uppdatera modalen med solens information
-      document.getElementById("planet-title").textContent = planetInfo.name;
-      document.getElementById("planet-title-latin").textContent =
-        planetInfo.latinName;
-      document.getElementById("planet-desc").textContent = `${planetInfo.desc}`;
-      document.getElementById(
-        "circumference"
-      ).textContent = ` ${planetInfo.circumference} km`;
-      document.getElementById(
-        "distance"
-      ).textContent = ` ${planetInfo.distance} km`;
-      document.getElementById(
-        "max-temp"
-      ).textContent = ` ${planetInfo.temp.day}°C`;
-      document.getElementById(
-        "min-temp"
-      ).textContent = ` ${planetInfo.temp.night}°C`;
-      
-      
-      let moonsText = planetInfo.moons;
-        document.getElementById("moons").innerHTML = `${moonsText} `;
-      
-      if (Array.isArray(moonsText)) {
-        
-        moonsText = moonsText.join(', ');
-      } else if (typeof moonsText !== "string") {
-        
-        moonsText = String(moonsText);
-      }
-
-     
-      if (moonsText) {
-        let formattedMoonsText = moonsText.split(',').join(', ');
-        document.getElementById("moons").innerHTML = `MÅNAR: ${formattedMoonsText}`;
-      }
-
-      planetModal.style.display = "block";
-      planetBox.style.display = "none";
-    }
-  });
-}
 
 const resetSunColor = () => {
   const sun = document.getElementById("solis");
-  if (sun) {
-    sun.style.backgroundColor = "";
-  }
+  if (sun) sun.style.backgroundColor = "";
 };
 
 const showPlanets = () => {
-  planets.forEach((planet) => {
-    planet.style.display = "flex";
-  });
+  planets.forEach(planet => planet.style.display = "flex");
   resetSunColor();
 };
 
+const updatePlanetModal = (planetInfo) => {
+  if (!planetInfo) return;
+
+  document.getElementById("planet-title").textContent = planetInfo.name;
+  document.getElementById("planet-title-latin").textContent = planetInfo.latinName;
+  document.getElementById("planet-desc").textContent = planetInfo.desc;
+  document.getElementById("circumference").textContent = `${planetInfo.circumference} km`;
+  document.getElementById("distance").textContent = `${planetInfo.distance} km`;
+  document.getElementById("max-temp").textContent = `${planetInfo.temp.day}°C`;
+  document.getElementById("min-temp").textContent = `${planetInfo.temp.night}°C`;
+
+  let moonsText = planetInfo.moons;
+  if (Array.isArray(moonsText)) {
+    moonsText = moonsText.join(', ');
+  } else if (typeof moonsText !== "string") {
+    moonsText = String(moonsText);
+  }
+  if (moonsText) {
+    document.getElementById("moons").innerHTML = moonsText;
+  }
+
+  planetModal.style.display = "block";
+  planetBox.style.display = "none";
+};
+
 const addPlanetEventListeners = () => {
-  planets.forEach((planet) => {
+  planets.forEach(planet => {
     planet.addEventListener("click", () => {
       const planetId = planet.id.toLowerCase();
       const planetInfo = planetData.find(
-        (data) => data.latinName.toLowerCase() === planetId
+        data => data.latinName.toLowerCase() === planetId
       );
 
       hideMain();
       hidePlanets();
       colorSunBlue();
 
-      planetModal.addEventListener("click", (e) => {
-        planetModal.style.display = "none";
-        planetBox.style.display = "flex";
-        showMain();
-        showPlanets();
+      planetModal.addEventListener("click", e => {
+        if (e.target === planetBox, planetModal) {
+          planetModal.style.display = "none";
+          planetBox.style.display = "flex";
+          showMain();
+          showPlanets();
+        }
       });
 
       if (planetInfo) {
-        document.getElementById("planet-title").textContent = planetInfo.name;
-        document.getElementById("planet-title-latin").textContent =
-          planetInfo.latinName;
-        document.getElementById(
-          "planet-desc"
-        ).textContent = `${planetInfo.desc}`;
-        document.getElementById(
-          "circumference"
-        ).textContent = `${planetInfo.circumference} km`;
-        document.getElementById(
-          "distance"
-        ).textContent = `${planetInfo.distance} km`;
-        document.getElementById(
-          "max-temp"
-        ).textContent = `${planetInfo.temp.day}°C`;
-        document.getElementById(
-          "min-temp"
-        ).textContent = `${planetInfo.temp.night}°C`;
-        document.getElementById(
-          "moons"
-        ).textContent = `${planetInfo.moons} `;
-
-        
-        
-        let moonsText = planetInfo.moons;
-        document.getElementById("moons").innerHTML = `${moonsText} `;
-        
-        if (Array.isArray(moonsText)) {
-        
-          moonsText = moonsText.join(', ');
-        } else if (typeof moonsText !== "string") {
-         
-          moonsText = String(moonsText);
-        }
-
-        
-        if (moonsText) {
-          let formattedMoonsText = moonsText.split(',').join(', ');
-          document.getElementById("moons").innerHTML = `MÅNAR: ${formattedMoonsText}`;
-        }
-        
-        
-
-        planetModal.style.display = "block";
-        planetBox.style.display = "none";
+        updatePlanetModal(planetInfo);
       } else {
-        alert("The information you are looking for is not available!");
+        alert("Den informationen du söker finns inte tillgänglig!");
       }
     });
   });
 };
+
+// Event listener för solen
+const sun = document.getElementById("solis");
+if (sun) {
+  sun.addEventListener("click", () => {
+    const planetInfo = planetData.find(
+      data => data.latinName.toLowerCase() === "solis"
+    );
+
+    colorSunBlue();
+    hideMain();
+    updatePlanetModal(planetInfo);
+  });
+}
