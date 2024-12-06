@@ -4,13 +4,13 @@ import { createStars, moveStars } from './star-animation.js';
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const apiKey = await fetchApiKey();
-    console.log("API-nyckel hämtad:", apiKey);
+    console.log("API-key fetched:", apiKey);
 
     createStars(); // modul star-animatjon.js
     moveStars(); // modul star-animation.js
     await fetchplanetData(apiKey);
   } catch (error) {
-    console.error("Fel vid hämtning av API-nyckel:", error);
+    console.error("Error while fetching API-key:", error);
   }
 });
 
@@ -46,7 +46,11 @@ const fetchplanetData = async (apiKey) => {
       console.log("API response status:", response.status);  // Logga status från API-svaret
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+      }
+      
+      
     }
 
     const data = await response.json();
@@ -66,7 +70,7 @@ const fetchplanetData = async (apiKey) => {
     retryCount += 1
 
   } if (retryCount < maxTries) {
-    console.log(`Försök att hämta data igen... (Försök ${retryCount}/${maxTries})`);
+    console.log(`Trying again... (Tries ${retryCount}/${maxTries})`);
       setTimeout(() => fetchplanetData(apiKey), 1000); // Gör ett nytt försök
     } else {
       console.log("Max attempts reached. Please try again later.");
@@ -149,7 +153,7 @@ const addPlanetEventListeners = () => {
         console.log("Planet info found:", planetInfo);
         updatePlanetModal(planetInfo); // Visa planetens detaljer
       } else {
-        alert('Den informationen du söker finns inte tillgänglig!');
+        alert('The information ur looking for is not avalible!');
       }
     });
   });
@@ -157,7 +161,7 @@ const addPlanetEventListeners = () => {
   const closeButton = planetModal.querySelector("#close-btn");
   if (closeButton) {
     closeButton.addEventListener("click", () => {
-      console.log("Stängknapp klickad.");
+      console.log("Close button clicked.");
       planetModal.style.display = "none";
       planetBox.style.display = "flex";
       showMain();
