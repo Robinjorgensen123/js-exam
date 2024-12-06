@@ -1,5 +1,7 @@
-// Denna modul hanterar alla animationer av stjärnor. Den separeras för att hålla
-// huvudlogiken ren och fokuserad på planetdata och användargränssnittet.
+// denna modul hanterar och skapar stjärnorna, hålls utanför script.js för att göra koden lättare
+// att läsa, samt enklare att återanvända koden om man skulle vilja det.
+// 
+
 
 
 export const createStars = () => {
